@@ -5,6 +5,7 @@ const mediaSource = new MediaSource();
 const audioElement = new Audio();
 
 let buttonState = "play";
+let isAudioPlaying = false;
 const setButtonState = (state) => {
   if (state === "loading") {
     buttonState = "loading";
@@ -93,6 +94,7 @@ const stopAudio = () => {
   isStopped = true;
   clearBuffer();
   setButtonState("play");
+  isAudioPlaying = false;
 };
 
 let sourceOpenEventAdded = false;
@@ -205,10 +207,12 @@ async function onClickTtsButton() {
   setButtonState("loading");
   try {
     setTextToPlay(window.getSelection().toString());
+    isAudioPlaying = true;
     await streamAudio();
   } catch (error) {
     console.error(error);
     setButtonState("play");
+    isAudioPlaying = false;
   }
 }
 
@@ -223,6 +227,7 @@ audioElement.addEventListener("timeupdate", () => {
 
       if (timeLeft <= playbackEndThreshold) {
         setButtonState("play");
+        isAudioPlaying = false;
       }
     }
   }
@@ -235,6 +240,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     onClickTtsButton();
   } else if (message.action === "stopReading") {
     stopAudio();
+  } else if (message.action === "checkAudioStatus") {
+    sendResponse({ isPlaying: isAudioPlaying });
   }
-  return true
+  return true;
 });

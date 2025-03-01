@@ -191,10 +191,30 @@ document.getElementById("clearStorage").addEventListener("click", function () {
   }
 });
 
+// Add event listener for stop button
 document.getElementById("stopButton").addEventListener("click", function() {
+  const stopButton = document.getElementById("stopButton");
+  
   chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
     if (tabs && tabs[0]) {
       chrome.tabs.sendMessage(tabs[0].id, {action: "stopReading"});
+      // Disable the button immediately after sending the stop message
+      stopButton.disabled = true;
+    }
+  });
+});
+
+// Check if audio is playing when popup opens
+document.addEventListener("DOMContentLoaded", function() {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs && tabs[0]) {
+      chrome.tabs.sendMessage(tabs[0].id, {action: "checkAudioStatus"}, function(response) {
+        if (response && response.isPlaying) {
+          document.getElementById("stopButton").disabled = false;
+        } else {
+          document.getElementById("stopButton").disabled = true;
+        }
+      });
     }
   });
 });

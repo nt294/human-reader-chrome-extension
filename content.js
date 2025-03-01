@@ -4,29 +4,15 @@ let streamingCompleted = true;
 const mediaSource = new MediaSource();
 const audioElement = new Audio();
 
-const ttsButton = document.createElement("img");
-ttsButton.id = "ttsButton";
-ttsButton.alt = "Text to speech button";
-ttsButton.setAttribute("role", "button");
-ttsButton.src = chrome.runtime.getURL("images/play.svg");
-ttsButton.style.display = "none";
-document.body.appendChild(ttsButton);
-
 let buttonState = "play";
 const setButtonState = (state) => {
   if (state === "loading") {
     buttonState = "loading";
-    ttsButton.src = chrome.runtime.getURL("images/spinner.svg");
-    ttsButton.disabled = true;
   } else if (state === "play") {
     buttonState = "play";
-    ttsButton.src = chrome.runtime.getURL("images/play.svg");
-    ttsButton.disabled = false;
     audioElement.pause();
   } else if (state === "speak") {
     buttonState = "speak";
-    ttsButton.src = chrome.runtime.getURL("images/stop.svg");
-    ttsButton.disabled = false;
   }
 };
 
@@ -242,35 +228,6 @@ audioElement.addEventListener("timeupdate", () => {
   }
 });
 
-document.addEventListener("selectionchange", function () {
-  const selection = window.getSelection();
-
-  if (!selection.anchorNode || !selection.focusNode) {
-    return;
-  }
-
-  // Detect if input element was selected
-  if (selection.anchorNode.tagName === "FORM" || selection.focusNode.tagName === "INPUT") {
-    return;
-  }
-  if (!selection.isCollapsed) {
-    const range = selection.getRangeAt(0);
-    const rects = range.getClientRects();
-    const lastRect = rects[rects.length - 1];
-    ttsButton.style.left = window.scrollX + lastRect.right + "px";
-    ttsButton.style.top = window.scrollY + lastRect.bottom + "px";
-    ttsButton.style.display = "block";
-  } else {
-    ttsButton.style.display = "none";
-  }
-  ttsButton.onclick = onClickTtsButton;
-});
-
-ttsButton.addEventListener("keydown", function (e) {
-  if (e.key === "Enter") {
-    onClickTtsButton();
-  }
-});
 
 // Receive sent message from background worker and trigger readOutLoud action
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

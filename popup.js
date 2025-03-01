@@ -190,3 +190,11 @@ document.getElementById("clearStorage").addEventListener("click", function () {
     document.getElementById("apiKey").value = "";
   }
 });
+
+document.getElementById("stopButton").addEventListener("click", function() {
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs && tabs[0]) {
+      chrome.tabs.sendMessage(tabs[0].id, {action: "stopReading"});
+    }
+  });
+});

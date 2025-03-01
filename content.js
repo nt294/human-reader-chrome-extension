@@ -233,12 +233,8 @@ audioElement.addEventListener("timeupdate", () => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "readOutLoud") {
     onClickTtsButton();
+  } else if (message.action === "stopReading") {
+    stopAudio();
   }
   return true
-});
-
-document.addEventListener("keydown", function (e) {
-  if ((e.ctrlKey || e.metaKey) && e.key === "h") {
-    onClickTtsButton();
-  }
 });
